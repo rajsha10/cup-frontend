@@ -1,136 +1,255 @@
 import React, { useState } from 'react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
+
+type EventType = 'NONE' | 'GOAL' | 'MATCH_END_WIN';
+
+interface SimulatePayload {
+  eventType: EventType;
+  score?: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const Contact: React.FC = () => {
-  const [formState, setFormState] = useState({ name: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const [eventType, setEventType] = useState<EventType>('GOAL');
+  const [score, setScore] = useState('Argentina 3 - 1 France');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<ApiResponse | null>(null);
+  const [liveFeed, setLiveFeed] = useState<{ eventId: string; minute: number; score: string; recentEvent: string } | null>(null);
+  const [feedLoading, setFeedLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setFormState({ name: '', email: '', message: '' });
-      setSubmitted(false);
-    }, 3000);
+  const fetchLiveFeed = async () => {
+    setFeedLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/events/live-feed`);
+      const data = await res.json();
+      setLiveFeed(data);
+    } catch {
+      setLiveFeed({ eventId: 'WC2026-FIN', minute: 72, score: 'Argentina 2 - 1 France', recentEvent: 'NONE' });
+    } finally {
+      setFeedLoading(false);
+    }
   };
 
+  const handleSimulate = async () => {
+    setLoading(true);
+    setResult(null);
+    const payload: SimulatePayload = { eventType };
+    if (score.trim()) payload.score = score.trim();
+
+    try {
+      const res = await fetch(`${API_URL}/api/admin/simulate-trigger`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data: ApiResponse = await res.json();
+      setResult(data);
+      // Refresh feed after trigger
+      setTimeout(fetchLiveFeed, 500);
+    } catch {
+      setResult({ success: false, error: 'Could not reach backend. Make sure server is running on port 3000.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const EVENT_TYPES: { value: EventType; label: string; description: string; color: string }[] = [
+    { value: 'NONE', label: 'None', description: 'Reset to normal state', color: 'var(--color-text-muted)' },
+    { value: 'GOAL', label: '⚽ Goal', description: 'Trigger a goal event alert', color: '#F59E0B' },
+    { value: 'MATCH_END_WIN', label: '🏆 Match End Win', description: 'Trigger victory upgrade + gold NFT', color: '#D97706' },
+  ];
+
   return (
-    <div style={{ maxWidth: '600px', margin: '3rem auto', padding: '0 1.5rem' }}>
-      <Card title="Developer Feedback" subtitle="Connect with the AgenticCup Dev Team">
-        {submitted ? (
+    <div style={{ flex: 1, paddingBottom: '5rem' }}>
+      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '4rem 1.5rem' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: '2.5rem' }}>
           <div style={{
-            textAlign: 'center',
-            padding: '2rem',
-            backgroundColor: 'rgba(16, 185, 129, 0.08)',
-            border: '1px solid var(--color-success)',
-            borderRadius: '12px',
-            color: 'var(--color-success)',
-            fontWeight: 600
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.35rem 0.9rem', borderRadius: 'var(--radius-pill)',
+            border: '1px solid rgba(239,68,68,0.25)', background: 'rgba(239,68,68,0.06)',
+            color: 'var(--color-error)', fontSize: '0.78rem', fontWeight: 700,
+            letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '1rem',
           }}>
-            ✅ Message Sent Successfully! Thank you.
+            ⚙️ Demo Only — Admin Access
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>
-                Full Name
+          <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', marginBottom: '0.75rem' }}>
+            Admin Simulation Panel
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-body)', fontSize: '0.95rem', lineHeight: 1.65 }}>
+            Use this panel to trigger match events and test the live fan experience. These calls POST to{' '}
+            <code style={{ fontSize: '0.85em', padding: '2px 6px', background: 'var(--color-primary-light)', borderRadius: '6px', color: 'var(--color-primary)' }}>
+              /api/admin/simulate-trigger
+            </code>{' '}
+            on the backend and update the live arena feed for all connected fans.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+
+          {/* Trigger panel */}
+          <div className="glass-panel" style={{ padding: '2rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>
+              Trigger Match Event
+            </h2>
+
+            {/* Event type selection */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: '0.75rem', fontFamily: 'var(--font-family-body)' }}>
+                Event Type
+              </label>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                {EVENT_TYPES.map((type) => (
+                  <button
+                    key={type.value}
+                    onClick={() => setEventType(type.value)}
+                    style={{
+                      padding: '0.75rem 1.25rem', borderRadius: '12px', cursor: 'pointer',
+                      border: eventType === type.value ? `2px solid ${type.color}` : '2px solid var(--color-border)',
+                      background: eventType === type.value ? `${type.color}12` : 'rgba(15,15,17,0.02)',
+                      fontWeight: 700, fontSize: '0.88rem',
+                      color: eventType === type.value ? type.color : 'var(--color-text-secondary)',
+                      fontFamily: 'var(--font-family-body)', transition: 'all var(--transition-fast)',
+                    }}
+                  >
+                    <div>{type.label}</div>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 500, opacity: 0.75, marginTop: '0.2rem' }}>{type.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Score field */}
+            <div style={{ marginBottom: '1.75rem' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: '0.6rem', fontFamily: 'var(--font-family-body)' }}>
+                Score String (optional)
               </label>
               <input
                 type="text"
-                required
+                value={score}
+                onChange={(e) => setScore(e.target.value)}
+                placeholder="e.g. Argentina 3 - 1 France"
                 className="glass-input"
-                value={formState.name}
-                onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                placeholder="Enter your name"
+                style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-body)' }}
               />
-            </div>
-            
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>
-                Email Address
-              </label>
-              <input
-                type="email"
-                required
-                className="glass-input"
-                value={formState.email}
-                onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                placeholder="you@example.com"
-              />
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: '0.4rem', fontFamily: 'var(--font-family-body)' }}>
+                Updates the live score text visible to all fans on the Arena Feed.
+              </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>
-                Message
-              </label>
-              <textarea
-                required
-                rows={4}
-                className="glass-input"
-                style={{ resize: 'vertical' }}
-                value={formState.message}
-                onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                placeholder="Feedback, bug reports, integration queries..."
-              />
+            {/* Submit */}
+            <button
+              id="simulate-trigger-btn"
+              onClick={handleSimulate}
+              disabled={loading}
+              style={{
+                width: '100%', padding: '1rem',
+                borderRadius: '14px',
+                background: loading ? 'rgba(15,15,17,0.08)' : 'linear-gradient(135deg, #1868FF 0%, #3B82F6 100%)',
+                color: loading ? 'var(--color-text-muted)' : '#fff',
+                fontWeight: 700, fontSize: '1rem', cursor: loading ? 'not-allowed' : 'pointer',
+                border: 'none', fontFamily: 'var(--font-family-display)',
+                letterSpacing: '0.04em', transition: 'all var(--transition-fast)',
+                boxShadow: loading ? 'none' : '0 4px 16px rgba(24,104,255,0.3)',
+              }}
+            >
+              {loading ? '⏳ Sending...' : `⚡ Simulate: ${eventType}`}
+            </button>
+
+            {/* Result */}
+            {result && (
+              <div style={{
+                marginTop: '1rem', padding: '0.875rem 1rem', borderRadius: '12px',
+                background: result.success ? 'var(--color-success-bg)' : 'var(--color-error-bg)',
+                border: `1px solid ${result.success ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                fontSize: '0.875rem', color: result.success ? 'var(--color-success)' : 'var(--color-error)',
+                fontWeight: 600, fontFamily: 'var(--font-family-body)',
+              }}>
+                {result.success ? `✅ ${result.message}` : `❌ ${result.error}`}
+              </div>
+            )}
+          </div>
+
+          {/* Live feed preview */}
+          <div className="glass-panel" style={{ padding: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <h2 style={{ fontSize: '1.05rem', color: 'var(--color-text-primary)', margin: 0 }}>
+                📡 Current Live Feed State
+              </h2>
+              <button
+                onClick={fetchLiveFeed}
+                disabled={feedLoading}
+                style={{
+                  padding: '0.4rem 1rem', borderRadius: 'var(--radius-pill)',
+                  border: '1px solid var(--color-border)', background: 'transparent',
+                  fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'var(--font-family-body)',
+                  transition: 'all var(--transition-fast)',
+                }}
+              >
+                {feedLoading ? '⏳' : '↻ Refresh'}
+              </button>
             </div>
 
-            <Button type="submit" variant="primary" style={{ marginTop: '0.5rem' }}>
-              Send Message
-            </Button>
-          </form>
-        )}
+            {liveFeed ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                {[
+                  ['Event ID', liveFeed.eventId],
+                  ['Score', liveFeed.score],
+                  ['Minute', `${liveFeed.minute}'`],
+                  ['Recent Event', liveFeed.recentEvent],
+                ].map(([label, value]) => (
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(15,15,17,0.04)' }}>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-body)', fontWeight: 600 }}>{label}</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-body)' }}>{value}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-body)', fontSize: '0.875rem' }}>
+                <p>Click "Refresh" to fetch the current live feed from the backend.</p>
+              </div>
+            )}
+          </div>
 
-        {/* Social / Badge Grid */}
-        <div style={{
-          marginTop: '2rem',
-          paddingTop: '1.5rem',
-          borderTop: '1px solid var(--color-border)',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '1.5rem'
-        }}>
-          <a 
-            href="https://github.com/injectivedev" 
-            target="_blank" 
-            rel="noreferrer"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: '#0F0F11',
-              color: '#FFFFFF'
-            }}
-          >
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-            GitHub
-          </a>
-          <a 
-            href="https://injective.com" 
-            target="_blank" 
-            rel="noreferrer"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: '#1868FF',
-              color: '#FFFFFF'
-            }}
-          >
-            Injective Network
-          </a>
+          {/* API reference quick view */}
+          <div className="glass-panel" style={{ padding: '2rem' }}>
+            <h2 style={{ fontSize: '1.05rem', marginBottom: '1.25rem', color: 'var(--color-text-primary)' }}>
+              📖 API Reference
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {[
+                { method: 'POST', path: '/api/admin/simulate-trigger', desc: 'Trigger match event (NONE | GOAL | MATCH_END_WIN)' },
+                { method: 'GET', path: '/api/events/live-feed', desc: 'Fetch current live match state' },
+                { method: 'GET', path: '/api/ticket/secure-proof', desc: 'Generate x402-gated rotating HMAC proof token' },
+              ].map(({ method, path, desc }) => (
+                <div key={path} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', padding: '0.75rem 0', borderBottom: '1px solid rgba(15,15,17,0.04)' }}>
+                  <span style={{
+                    padding: '0.2rem 0.55rem', borderRadius: '6px', fontSize: '0.72rem',
+                    fontWeight: 700, fontFamily: 'ui-monospace, monospace', flexShrink: 0,
+                    background: method === 'POST' ? 'rgba(245,158,11,0.1)' : 'rgba(24,104,255,0.1)',
+                    color: method === 'POST' ? '#D97706' : 'var(--color-primary)',
+                    border: `1px solid ${method === 'POST' ? 'rgba(245,158,11,0.25)' : 'rgba(24,104,255,0.2)'}`,
+                  }}>
+                    {method}
+                  </span>
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontFamily: 'ui-monospace, monospace', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.2rem' }}>{path}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-body)' }}>{desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

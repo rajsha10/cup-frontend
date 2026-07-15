@@ -2,15 +2,24 @@
   /* Color System */
   --color-primary: #1868FF;
   --color-primary-hover: #0051D9;
-  --color-background: #F4F4F6;
+  --color-primary-light: rgba(24, 104, 255, 0.12);
+  --color-primary-gradient: linear-gradient(135deg, #1868FF 0%, #3B82F6 100%);
+  --color-primary-gradient-glow: linear-gradient(135deg, #1868FF 0%, #60A5FA 100%);
+  --color-background: #F0F1F5;
   --color-surface: #FFFFFF;
-  --color-text-primary: #0F0F11;
-  --color-text-secondary: #5E5E6E;
+  --color-surface-raised: #FAFBFF;
+  --color-text-primary: #0A0A0F;
+  --color-text-secondary: #5A5A70;
+  --color-text-muted: #9494A8;
   --color-border: rgba(15, 15, 17, 0.08);
-  --color-border-hover: rgba(15, 15, 17, 0.16);
+  --color-border-hover: rgba(24, 104, 255, 0.25);
+  --color-border-glow: rgba(24, 104, 255, 0.4);
   --color-success: #10B981;
+  --color-success-bg: rgba(16, 185, 129, 0.08);
   --color-warning: #F59E0B;
+  --color-warning-bg: rgba(245, 158, 11, 0.08);
   --color-error: #EF4444;
+  --color-error-bg: rgba(239, 68, 68, 0.08);
 
   /* Typography */
   --font-family-display: 'Antonio', 'Oswald', sans-serif;
@@ -18,14 +27,16 @@
 
   /* Spacing & Borders */
   --radius-pill: 9999px;
-  --radius-card: 24px;
+  --radius-card: 20px;
   --radius-button: 12px;
   --radius-input: 12px;
-  
+
   /* Shadows & Depth */
-  --shadow-sm: 0 2px 8px rgba(15, 15, 17, 0.02);
-  --shadow-md: 0 8px 30px rgba(15, 15, 17, 0.04);
-  --shadow-lg: 0 16px 40px rgba(15, 15, 17, 0.08);
+  --shadow-sm: 0 1px 4px rgba(15, 15, 17, 0.04), 0 2px 8px rgba(15, 15, 17, 0.04);
+  --shadow-md: 0 4px 16px rgba(15, 15, 17, 0.06), 0 8px 32px rgba(15, 15, 17, 0.04);
+  --shadow-lg: 0 8px 32px rgba(15, 15, 17, 0.08), 0 24px 48px rgba(15, 15, 17, 0.06);
+  --shadow-glow: 0 0 0 1px rgba(24, 104, 255, 0.15), 0 4px 24px rgba(24, 104, 255, 0.15), 0 8px 48px rgba(24, 104, 255, 0.08);
+  --shadow-glow-sm: 0 0 0 1px rgba(24, 104, 255, 0.12), 0 4px 16px rgba(24, 104, 255, 0.12);
 
   /* Animations */
   --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -43,6 +54,8 @@
 body {
   font-family: var(--font-family-body);
   background-color: var(--color-background);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(24, 104, 255, 0.06) 0%, transparent 70%);
   color: var(--color-text-secondary);
   font-size: 1rem;
   line-height: 1.6;
@@ -77,54 +90,90 @@ button, input, select, textarea {
   outline: none;
 }
 
-/* Utility Classes */
-
+/* ============================================================
+   GLASS PANEL — Core card pattern
+   ============================================================ */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
+  position: relative;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glass-panel > * {
+  position: relative;
+  z-index: 1;
 }
 
 .glass-panel:hover {
   border-color: var(--color-border-hover);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
 }
 
+/* ============================================================
+   ACCENT STRIPES — Decorative diagonal pattern
+   ============================================================ */
 .accent-stripe {
   background: repeating-linear-gradient(
     -45deg,
-    var(--color-primary),
-    var(--color-primary) 6px,
-    transparent 6px,
-    transparent 14px
+    #1868FF,
+    #1868FF 5px,
+    #3B82F6 5px,
+    #3B82F6 10px,
+    transparent 10px,
+    transparent 16px
   );
-  height: 12px;
-  width: 90px;
+  height: 10px;
+  width: 80px;
   border-radius: 4px;
+  opacity: 0.85;
 }
 
 .accent-stripe-small {
   background: repeating-linear-gradient(
     -45deg,
-    var(--color-primary),
-    var(--color-primary) 3px,
+    #1868FF,
+    #1868FF 3px,
     transparent 3px,
-    transparent 8px
+    transparent 7px
   );
-  height: 6px;
-  width: 45px;
+  height: 5px;
+  width: 40px;
   border-radius: 2px;
 }
 
-/* Pill Navigation Layout */
+/* ============================================================
+   GRADIENT TEXT UTILITY
+   ============================================================ */
+.gradient-text {
+  background: var(--color-primary-gradient-glow);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   PILL NAVIGATION LAYOUT
+   ============================================================ */
 .pill-nav-container {
   display: flex;
   justify-content: center;
-  padding: 1.5rem 1rem;
+  padding: 1.25rem 1rem;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -136,16 +185,19 @@ button, input, select, textarea {
   justify-content: space-between;
   width: 100%;
   max-width: 1200px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--color-border);
-  padding: 0.5rem 1.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(15, 15, 17, 0.06);
+  padding: 0.625rem 1.25rem;
   border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(24, 104, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
-/* Main Dashboard Grid Layout */
+/* ============================================================
+   MAIN DASHBOARD GRID LAYOUT
+   ============================================================ */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -160,13 +212,15 @@ button, input, select, textarea {
   .dashboard-grid {
     grid-template-columns: 2fr 1fr;
   }
-  
+
   .full-width-span {
     grid-column: span 2;
   }
 }
 
-/* Vertical Stats Divider Pattern */
+/* ============================================================
+   VERTICAL STATS DIVIDER PATTERN
+   ============================================================ */
 .stats-grid-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -186,47 +240,68 @@ button, input, select, textarea {
   top: 20%;
   height: 60%;
   width: 1px;
-  background-color: var(--color-border);
+  background: linear-gradient(to bottom, transparent, var(--color-border), transparent);
 }
 
-/* Status Indicators */
+/* ============================================================
+   STATUS INDICATORS
+   ============================================================ */
 .status-indicator {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.3rem 0.85rem;
   border-radius: var(--radius-pill);
   border: 1px solid currentColor;
+  letter-spacing: 0.01em;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background-color: currentColor;
+  flex-shrink: 0;
 }
 
 .status-dot.active {
-  animation: pulse-glow 1.5s infinite alternate;
+  animation: pulse-glow 1.8s infinite alternate ease-in-out;
 }
 
 @keyframes pulse-glow {
   0% {
-    opacity: 0.4;
-    transform: scale(0.9);
+    opacity: 0.5;
+    transform: scale(0.85);
+    box-shadow: 0 0 0 0 currentColor;
   }
   100% {
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    box-shadow: 0 0 6px 2px currentColor;
   }
 }
 
-/* Custom Scrollbar for Logs */
+/* ============================================================
+   CARD GLOW ANIMATION (for arbitrage / alert states)
+   ============================================================ */
+@keyframes card-pulse {
+  0% { box-shadow: var(--shadow-md); }
+  50% { box-shadow: var(--shadow-md), var(--shadow-glow); }
+  100% { box-shadow: var(--shadow-md); }
+}
+
+.card-glow-pulse {
+  animation: card-pulse 2.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   CUSTOM SCROLLBAR
+   ============================================================ */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -234,17 +309,19 @@ button, input, select, textarea {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: rgba(24, 104, 255, 0.2);
   border-radius: var(--radius-pill);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
+  background: rgba(24, 104, 255, 0.4);
 }
 
-/* Input Fields Styling */
+/* ============================================================
+   INPUT FIELDS
+   ============================================================ */
 .glass-input {
-  background: rgba(15, 15, 17, 0.03);
+  background: rgba(15, 15, 17, 0.025);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
   padding: 0.75rem 1rem;
@@ -254,13 +331,24 @@ button, input, select, textarea {
   width: 100%;
 }
 
+.glass-input::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
 .glass-input:focus {
   background: var(--color-surface);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(24, 104, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(24, 104, 255, 0.12), 0 1px 4px rgba(24, 104, 255, 0.1);
 }
 
-/* Switch styling for Control center */
+.glass-input:hover:not(:focus) {
+  border-color: var(--color-border-hover);
+}
+
+/* ============================================================
+   TOGGLE SWITCH
+   ============================================================ */
 .switch-container {
   display: inline-flex;
   align-items: center;
@@ -269,11 +357,11 @@ button, input, select, textarea {
 
 .switch-track {
   width: 48px;
-  height: 24px;
-  background-color: var(--color-border);
-  border-radius: 12px;
-  padding: 2px;
-  transition: background-color var(--transition-normal);
+  height: 26px;
+  background-color: rgba(15, 15, 17, 0.12);
+  border-radius: 13px;
+  padding: 3px;
+  transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
   position: relative;
 }
 
@@ -283,13 +371,451 @@ button, input, select, textarea {
   background-color: var(--color-surface);
   border-radius: 50%;
   transition: transform var(--transition-normal);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 4px rgba(15, 15, 17, 0.2);
 }
 
 .switch-container.checked .switch-track {
-  background-color: var(--color-success);
+  background: var(--color-primary-gradient);
+  box-shadow: 0 2px 8px rgba(24, 104, 255, 0.4);
 }
 
 .switch-container.checked .switch-thumb {
-  transform: translateX(24px);
+  transform: translateX(22px);
+}
+
+/* ============================================================
+   DATA VALUE — large numeric display
+   ============================================================ */
+.data-value {
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   BADGE STYLES
+   ============================================================ */
+.badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--color-primary-gradient);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(24, 104, 255, 0.35);
+}
+
+.badge-live::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: pulse-glow 1.5s infinite alternate ease-in-out;
+}
+
+/* ============================================================
+   PROBABILITY BAR
+   ============================================================ */
+.prob-bar-track {
+  height: 22px;
+  background: rgba(15, 15, 17, 0.05);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  position: relative;
+}
+
+.prob-bar-fill {
+  height: 100%;
+  background: var(--color-primary-gradient);
+  border-radius: var(--radius-pill);
+  transition: width var(--transition-slow);
+  position: relative;
+}
+
+.prob-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill) var(--radius-pill) 0 0;
+}
+
+/* ============================================================
+   TABLE STYLES
+   ============================================================ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.data-table thead tr {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-table th {
+  padding: 0.75rem 0.75rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-family-body);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 0.75rem 0.75rem;
+  border-bottom: 1px solid rgba(15, 15, 17, 0.04);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(24, 104, 255, 0.025);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================================
+   TERMINAL BLOCK — monospace code display
+   ============================================================ */
+.terminal-block {
+  background: #0D1117;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.terminal-body {
+  padding: 1.25rem;
+  color: #A7F3D0;
+  font-family: 'ui-monospace', 'Cascadia Code', Consolas, monospace;
+  font-size: 0.825rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ============================================================
+   FORMULA BLOCK
+   ============================================================ */
+.formula-block {
+  padding: 1.25rem 1.5rem;
+  background: rgba(24, 104, 255, 0.03);
+  border-radius: 12px;
+  border-left: 3px solid var(--color-primary);
+  font-family: 'ui-monospace', Consolas, monospace;
+  font-size: 1.05rem;
+  color: var(--color-text-primary);
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   TRADE LOG ENTRY
+   ============================================================ */
+.trade-log-entry {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border-left: 3px solid var(--color-border);
+  background: rgba(15, 15, 17, 0.01);
+  transition: background var(--transition-fast);
+}
+
+.trade-log-entry:hover {
+  background: rgba(24, 104, 255, 0.03);
+}
+
+.trade-log-entry.highlight {
+  border-left-color: var(--color-primary);
+  background: rgba(24, 104, 255, 0.04);
+}
+
+/* ============================================================
+   HERO BG PATTERN OVERLAY (CSS only grid)
+   ============================================================ */
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(24, 104, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 104, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   FEATURE CARD ICON
+   ============================================================ */
+.feature-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background: var(--color-primary-gradient);
+  box-shadow: 0 4px 16px rgba(24, 104, 255, 0.35);
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.glass-panel:hover .feature-icon {
+  transform: scale(1.05) rotate(-3deg);
+  box-shadow: 0 8px 24px rgba(24, 104, 255, 0.45);
+}
+
+/* ============================================================
+   INJPASS: GOLD VICTORY THEME TOKENS
+   ============================================================ */
+:root {
+  --color-gold: #F59E0B;
+  --color-gold-dark: #D97706;
+  --color-gold-bg: rgba(245, 158, 11, 0.08);
+  --color-gold-border: rgba(245, 158, 11, 0.3);
+  --shadow-gold: 0 0 0 1px rgba(245, 158, 11, 0.2), 0 8px 32px rgba(245, 158, 11, 0.2);
+}
+
+/* ============================================================
+   INJPASS: NFT TICKET CARD — VICTORY EDITION
+   ============================================================ */
+.ticket-card {
+  transition: all var(--transition-slow);
+}
+
+.ticket-card.victory-edition {
+  animation: victory-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes victory-shimmer {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(245,158,11,0.2), 0 8px 40px rgba(245,158,11,0.15), var(--shadow-md);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(245,158,11,0.45), 0 12px 60px rgba(245,158,11,0.30), var(--shadow-lg);
+  }
+}
+
+/* ============================================================
+   INJPASS: 3D CARD FLIP ANIMATION
+   ============================================================ */
+.card-flip-container {
+  perspective: 1200px;
+}
+
+.card-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-flip-front,
+.card-flip-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* ============================================================
+   INJPASS: GOAL FLASH ANIMATION
+   ============================================================ */
+@keyframes goal-flash {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   INJPASS: MODAL ENTRY ANIMATION
+   ============================================================ */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ============================================================
+   INJPASS: BOUNCE-IN (celebration elements)
+   ============================================================ */
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   INJPASS: FLOATING ANIMATION (trophy icon)
+   ============================================================ */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ============================================================
+   INJPASS: LOADING DOT BOUNCE
+   ============================================================ */
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   INJPASS: SPINNER ROTATION
+   ============================================================ */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.85s linear infinite;
+}
+
+/* ============================================================
+   INJPASS: DASHBOARD GRID UPDATE — Equal columns for fan view
+   ============================================================ */
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ============================================================
+   INJPASS: HERO BACKGROUND — Argentina/France accent
+   ============================================================ */
+.hero-argentina-stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    #74C0FC,
+    #74C0FC 5px,
+    #FFFFFF 5px,
+    #FFFFFF 10px,
+    transparent 10px,
+    transparent 16px
+  );
+  height: 8px;
+  width: 80px;
+  border-radius: 4px;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   INJPASS: GLASS INPUT OVERRIDE (Admin panel)
+   ============================================================ */
+.glass-input {
+  font-size: 0.95rem;
+}
+
+/* ============================================================
+   INJPASS: BADGE VARIANTS
+   ============================================================ */
+.badge-victory {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+}
+
+.badge-checked-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(245, 158, 11, 0.08);
+  color: #D97706;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  animation: pulse-glow 2s infinite alternate ease-in-out;
 }

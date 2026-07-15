@@ -1,107 +1,106 @@
 import React from 'react';
-import { Card } from '../components/Card';
 
 export const About: React.FC = () => {
   return (
-    <div style={{ maxWidth: '1000px', margin: '2rem auto', padding: '0 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      
-      <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-        <div className="accent-stripe" style={{ margin: '0 auto 1rem auto' }}></div>
-        <h2 style={{ fontSize: '3rem' }}>How AgenticCup Works</h2>
-        <p style={{ fontSize: '1.125rem', color: 'var(--color-text-secondary)', maxWidth: '600px', margin: '0.5rem auto' }}>
-          Discover the mathematical engine, micropayment gateways, and autonomous agent loops powering our sports hedging mechanism.
-        </p>
+    <div id="about-section" style={{ flex: 1, paddingBottom: '5rem' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '4rem 1.5rem' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: '3rem', textAlign: 'center' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.35rem 0.9rem', borderRadius: 'var(--radius-pill)',
+            border: '1px solid rgba(24, 104, 255, 0.25)', background: 'rgba(24, 104, 255, 0.07)',
+            color: 'var(--color-primary)', fontSize: '0.8rem', fontWeight: 700,
+            letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '1.25rem',
+          }}>
+            How It Works
+          </div>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', marginBottom: '1rem' }}>
+            InjPass Architecture
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.05rem', fontFamily: 'var(--font-family-body)', lineHeight: 1.7, maxWidth: '600px', margin: '0 auto' }}>
+            A Web3 stadium ticketing platform powered by NFT minting, x402 micropayments, and autonomous AI agents on Injective Protocol.
+          </p>
+        </div>
+
+        {/* Flow steps */}
+        {[
+          {
+            step: '01',
+            icon: '🎫',
+            title: 'Ticket NFT Minting',
+            color: '#1868FF',
+            description: 'Fans call purchaseTicket() on the InjPassCollectible smart contract. The NFT is minted with seat number, event ID, and base metadata recorded immutably on Injective.',
+          },
+          {
+            step: '02',
+            icon: '🔐',
+            title: 'x402 Gate Entry (QR Code)',
+            color: '#7C3AED',
+            description: 'At the stadium gate, the frontend requests a secure proof from /api/ticket/secure-proof. The endpoint is protected by x402 middleware ($0.01 USDC). A rotating HMAC-SHA256 token is returned and rendered as a QR code — valid for 15 seconds.',
+          },
+          {
+            step: '03',
+            icon: '🤖',
+            title: 'AI Turnstile Agent',
+            color: '#059669',
+            description: 'The AI Fan Engagement Agent monitors gate entry requests and calls validateGateEntry() on-chain via the Injective MCP server bridge. The turnstile opens and the fan\'s ticket status updates to "Checked In".',
+          },
+          {
+            step: '04',
+            icon: '🏆',
+            title: 'Victory NFT Upgrade',
+            color: '#D97706',
+            description: 'The agent continuously polls /api/events/live-feed. When MATCH_END_WIN is detected, it calls upgradeToVictoryMetadata() on-chain. The fan\'s NFT transforms into a Gold Victory Edition collectible — fully autonomously.',
+          },
+        ].map((item) => (
+          <div key={item.step} className="glass-panel" style={{ padding: '2rem', marginBottom: '1.25rem', display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '16px', flexShrink: 0,
+              background: `${item.color}15`, border: `2px solid ${item.color}30`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.75rem',
+            }}>
+              {item.icon}
+            </div>
+            <div>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: item.color, marginBottom: '0.35rem', fontFamily: 'var(--font-family-body)' }}>
+                Step {item.step}
+              </div>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.6rem', color: 'var(--color-text-primary)' }}>
+                {item.title}
+              </h3>
+              <p style={{ color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-body)', lineHeight: 1.7, fontSize: '0.92rem', margin: 0 }}>
+                {item.description}
+              </p>
+            </div>
+          </div>
+        ))}
+
+        {/* Tech stack */}
+        <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem' }}>
+          <h3 style={{ marginBottom: '1.25rem', fontSize: '1.15rem' }}>Tech Stack</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+            {[
+              { label: 'Smart Contract', value: 'InjPassCollectible.sol', icon: '📜' },
+              { label: 'Blockchain', value: 'Injective Protocol', icon: '⛓' },
+              { label: 'Payment Gate', value: 'x402 Middleware', icon: '💳' },
+              { label: 'Agent', value: 'AI Fan Manager + MCP', icon: '🤖' },
+              { label: 'Token Standard', value: 'ERC-721 NFT', icon: '🎟' },
+              { label: 'Currency', value: 'Bridged USDC', icon: '💵' },
+            ].map(({ label, value, icon }) => (
+              <div key={label} style={{
+                padding: '0.875rem 1rem', borderRadius: '12px',
+                background: 'rgba(24,104,255,0.04)', border: '1px solid rgba(24,104,255,0.1)',
+              }}>
+                <div style={{ fontSize: '1.2rem', marginBottom: '0.35rem' }}>{icon}</div>
+                <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', marginBottom: '0.2rem', fontFamily: 'var(--font-family-body)' }}>{label}</div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text-primary)', fontFamily: 'var(--font-family-body)' }}>{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-
-      {/* Poisson Explainer */}
-      <Card title="1. Mathematical Odds Engine (Poisson Distribution)">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <p>
-            At any minute t (from 0 to 90) of a football match, we calculate the remaining match duration T_rem = 90 - t. 
-            Using the historical expected goals (xG1 and xG2) recorded by the live data oracle, the system estimates the scoring intensity rate (lambda) for the remainder of the match:
-          </p>
-          <div style={{ 
-            padding: '1.25rem', 
-            backgroundColor: 'rgba(15, 15, 17, 0.02)', 
-            borderRadius: '12px',
-            fontFamily: 'monospace',
-            textAlign: 'center',
-            fontSize: '1.1rem',
-            color: 'var(--color-text-primary)',
-            borderLeft: '4px solid var(--color-primary)'
-          }}>
-            λ₁ = (xG₁ / t) * (90 - t) &nbsp;&nbsp;|&nbsp;&nbsp; λ₂ = (xG₂ / t) * (90 - t)
-          </div>
-          <p>
-            The probability of a team scoring exactly $g$ goals during the remainder of the match is calculated using the Poisson Probability Mass Function (PMF):
-          </p>
-          <div style={{ 
-            padding: '1.25rem', 
-            backgroundColor: 'rgba(15, 15, 17, 0.02)', 
-            borderRadius: '12px',
-            fontFamily: 'monospace',
-            textAlign: 'center',
-            fontSize: '1.1rem',
-            color: 'var(--color-text-primary)',
-            borderLeft: '4px solid var(--color-primary)'
-          }}>
-            P(g; λ) = (λᵍ * e⁻λ) / g!
-          </div>
-          <p>
-            Finally, we calculate the win probability P_win by summing the joint probabilities of all scoring scenarios where the team's total goals (current goals + simulated remaining goals) exceeds the opponent's.
-          </p>
-        </div>
-      </Card>
-
-      {/* x402 Explainer */}
-      <Card title="2. Paywalled Premium Telemetry (x402 Micropayments)">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <p>
-            Traditional SaaS licensing and recurring subscriptions are poorly optimized for episodic, high-frequency software agents. 
-            AgenticCup resolves this by monetizing its Live Stats Oracle with the **x402 Protocol** over the Base Sepolia network.
-          </p>
-          <ul style={{ paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <li><strong>Pay-Per-Request:</strong> Agents only pay for telemetry when they trigger calculations. Each GET request to the stats oracle costs exactly <strong>$0.01 USDC</strong>.</li>
-            <li><strong>M2M Settlement:</strong> Standard EVM wallet handshake metadata is handled headers-side. The Express middleware directly validates on-chain payments prior to returning match details.</li>
-            <li><strong>Mock Mode:</strong> During sandbox validation, developer test bypass tokens (<code>Authorization: Bearer MOCK_x402_PAYMENT_TOKEN</code>) are supported to prevent developer coin drainage.</li>
-          </ul>
-        </div>
-      </Card>
-
-      {/* Injective & MCP Explainer */}
-      <Card title="3. Autonomous Trading & MCP Execution">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <p>
-            When the calculated win probability deviates from the market implied odds (e.g. on Prediction Markets) by more than 5.0% (the edge threshold), the agent takes autonomous hedging action.
-          </p>
-          <p>
-            Instead of manual clicks, the agent communicates with the **Injective MCP Server** using JSON-RPC standard tool invocations. The MCP server automatically handles wallet credentials, signs transactions, and broadcasts leverage derivative trades (perpetuals) to Injective testnet:
-          </p>
-          <div style={{ 
-            padding: '1rem', 
-            backgroundColor: 'rgba(15, 15, 17, 0.9)', 
-            borderRadius: '12px',
-            color: '#A7F3D0',
-            fontFamily: 'monospace',
-            fontSize: '0.85rem',
-            overflowX: 'auto'
-          }}>
-            {`// Autonomous Agent MCP execution payload
-mcpClient.callTool({
-  name: "trade_open",
-  arguments: {
-    symbol: "INJ",
-    side: "long",
-    amount: "1.5004", // USDC notional size
-    leverage: 5,
-    address: "inj12hwzwusuejawqx2...edx",
-    password: "agentic-password"
-  }
-});`}
-          </div>
-        </div>
-      </Card>
-
     </div>
   );
 };

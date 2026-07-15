@@ -17,7 +17,9 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props
 }) => {
-  // Base button styling classes using pure CSS variables
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  // Base button styling
   const baseStyle = {
     display: 'inline-flex',
     alignItems: 'center',
@@ -28,61 +30,82 @@ export const Button: React.FC<ButtonProps> = ({
     borderRadius: 'var(--radius-pill)',
     cursor: 'pointer',
     transition: 'all var(--transition-fast)',
-    whiteSpace: 'nowrap',
-    userSelect: 'none',
+    whiteSpace: 'nowrap' as const,
+    userSelect: 'none' as const,
+    letterSpacing: '0.01em',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
   } as React.CSSProperties;
 
-  // Sizes styles
+  // Size styles
   const sizeStyles = {
-    sm: { padding: '0.5rem 1.25rem', fontSize: '0.875rem' },
-    md: { padding: '0.75rem 1.75rem', fontSize: '1rem' },
-    lg: { padding: '1rem 2.25rem', fontSize: '1.125rem' },
+    sm: { padding: '0.48rem 1.2rem', fontSize: '0.875rem' },
+    md: { padding: '0.72rem 1.75rem', fontSize: '1rem' },
+    lg: { padding: '0.95rem 2.25rem', fontSize: '1.1rem' },
   }[size];
 
-  // Variants styles
-  const variantStyles = {
+  // Variant styles
+  const variantStyles: Record<string, React.CSSProperties> = {
     primary: {
-      backgroundColor: 'var(--color-primary)',
-      color: 'var(--color-surface)',
-      boxShadow: 'var(--shadow-sm)',
+      background: 'linear-gradient(135deg, #1868FF 0%, #3B82F6 100%)',
+      color: '#FFFFFF',
+      boxShadow: '0 2px 8px rgba(24, 104, 255, 0.3), 0 1px 3px rgba(24, 104, 255, 0.15), inset 0 1px 0 rgba(255,255,255,0.15)',
+      border: 'none',
     },
     secondary: {
-      backgroundColor: 'var(--color-text-primary)',
-      color: 'var(--color-surface)',
-      boxShadow: 'var(--shadow-sm)',
+      background: 'linear-gradient(135deg, #0A0A0F 0%, #1A1A2E 100%)',
+      color: '#FFFFFF',
+      boxShadow: '0 2px 8px rgba(10, 10, 15, 0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
+      border: 'none',
     },
     outline: {
-      backgroundColor: 'transparent',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
       color: 'var(--color-text-primary)',
       border: '1px solid var(--color-border)',
+      boxShadow: '0 1px 3px rgba(15, 15, 17, 0.06)',
     },
     ghost: {
       backgroundColor: 'transparent',
       color: 'var(--color-text-secondary)',
+      border: 'none',
+      boxShadow: 'none',
     },
-  }[variant];
+  };
 
-  // Hover states using JS events for robustness, alongside CSS classes
-  const [isHovered, setIsHovered] = React.useState(false);
-  
-  const hoverStyles = isHovered && !props.disabled ? {
-    primary: { backgroundColor: 'var(--color-primary-hover)', transform: 'translateY(-1px)' },
-    secondary: { backgroundColor: 'rgba(15, 15, 17, 0.9)', transform: 'translateY(-1px)' },
-    outline: { borderColor: 'var(--color-text-primary)', backgroundColor: 'rgba(15, 15, 17, 0.02)', transform: 'translateY(-1px)' },
-    ghost: { backgroundColor: 'rgba(15, 15, 17, 0.04)', color: 'var(--color-text-primary)' },
-  }[variant] : {};
+  const hoverStyles: Record<string, React.CSSProperties> = isHovered && !props.disabled ? {
+    primary: {
+      background: 'linear-gradient(135deg, #0051D9 0%, #1868FF 100%)',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 20px rgba(24, 104, 255, 0.4), 0 2px 8px rgba(24, 104, 255, 0.2), inset 0 1px 0 rgba(255,255,255,0.2)',
+    },
+    secondary: {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 6px 20px rgba(10, 10, 15, 0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
+    },
+    outline: {
+      borderColor: 'rgba(24, 104, 255, 0.4)',
+      backgroundColor: 'rgba(24, 104, 255, 0.04)',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 12px rgba(24, 104, 255, 0.12)',
+      color: 'var(--color-primary)',
+    },
+    ghost: {
+      backgroundColor: 'rgba(15, 15, 17, 0.05)',
+      color: 'var(--color-text-primary)',
+    },
+  } : { primary: {}, secondary: {}, outline: {}, ghost: {} };
 
-  const disabledStyles = props.disabled ? {
-    opacity: 0.5,
+  const disabledStyles: React.CSSProperties = props.disabled ? {
+    opacity: 0.45,
     cursor: 'not-allowed',
     transform: 'none',
   } : {};
 
-  const combinedStyles = {
+  const combinedStyles: React.CSSProperties = {
     ...baseStyle,
     ...sizeStyles,
-    ...variantStyles,
-    ...hoverStyles,
+    ...variantStyles[variant],
+    ...(hoverStyles[variant] || {}),
     ...disabledStyles,
   };
 
