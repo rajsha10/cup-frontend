@@ -8,10 +8,12 @@ interface NavbarProps {
 }
 
 const TABS = [
-  { id: 'home',   label: 'Home',       icon: '🏟' },
-  { id: 'ticket', label: 'My Ticket',  icon: '🎫' },
-  { id: 'arena',  label: 'Arena Feed', icon: '📡' },
-  { id: 'admin',  label: 'Admin',      icon: '⚙️' },
+  { id: 'home',      label: 'Home',           icon: '🏟' },
+  { id: 'ticket',    label: 'My Ticket',      icon: '🎫' },
+  { id: 'validator', label: 'Turnstile Gate', icon: '🚧' },
+  { id: 'agent',     label: 'AI Fan Agent',   icon: '🤖' },
+  { id: 'arena',     label: 'Arena Feed',     icon: '📡' },
+  { id: 'admin',     label: 'Admin',          icon: '⚙️' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => {

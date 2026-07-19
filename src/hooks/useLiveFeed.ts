@@ -18,7 +18,7 @@ export interface UseLiveFeedReturn {
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
-const POLL_INTERVAL_MS = 8000; // 8 seconds per spec
+const POLL_INTERVAL_MS = 2000; // 2 seconds for instant demo video responsiveness
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 // Fallback data when backend is offline

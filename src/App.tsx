@@ -3,10 +3,11 @@ import { Web3Provider } from './context/Web3Context';
 import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
-
+import { ValidatorDemo } from './pages/ValidatorDemo';
+import { FanAgentDemo } from './pages/FanAgentDemo';
 import { Contact } from './pages/Contact';
 
-type Tab = 'home' | 'ticket' | 'arena' | 'admin';
+type Tab = 'home' | 'ticket' | 'validator' | 'agent' | 'arena' | 'admin';
 
 function AppContent() {
   const [currentTab, setCurrentTab] = useState<Tab>('home');
@@ -21,6 +22,10 @@ function AppContent() {
         return <Home setCurrentTab={navigate} />;
       case 'ticket':
         return <Dashboard activePane="ticket" setCurrentTab={navigate} />;
+      case 'validator':
+        return <ValidatorDemo setCurrentTab={navigate} />;
+      case 'agent':
+        return <FanAgentDemo setCurrentTab={navigate} />;
       case 'arena':
         return <Dashboard activePane="arena" setCurrentTab={navigate} />;
       case 'admin':
@@ -76,7 +81,8 @@ function AppContent() {
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             {[
               { label: 'How It Works', action: () => setCurrentTab('home' as Tab) },
-              { label: 'Architecture', action: () => setCurrentTab('home' as Tab) },
+              { label: 'Turnstile Demo', action: () => setCurrentTab('validator' as Tab) },
+              { label: 'AI Agent Demo', action: () => setCurrentTab('agent' as Tab) },
               { label: 'Admin Panel', action: () => setCurrentTab('admin' as Tab) },
             ].map((item) => (
               <span
@@ -113,7 +119,6 @@ function AppContent() {
           </div>
         </div>
       </footer>
-
     </>
   );
 }
