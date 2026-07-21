@@ -21,14 +21,6 @@ export interface UseLiveFeedReturn {
 const POLL_INTERVAL_MS = 2000; // 2 seconds for instant demo video responsiveness
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-// Fallback data when backend is offline
-const FALLBACK_FEED: LiveFeed = {
-  eventId: 'WC2026-FIN',
-  minute: 72,
-  score: 'Argentina 2 - 1 France',
-  recentEvent: 'NONE',
-};
-
 export function useLiveFeed(): UseLiveFeedReturn {
   const [feed, setFeed] = useState<LiveFeed | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,11 +38,9 @@ export function useLiveFeed(): UseLiveFeedReturn {
       setLastUpdated(new Date());
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      console.warn('[useLiveFeed] Backend offline, using fallback:', msg);
-      setError('Backend offline — showing demo data');
-      // Use fallback so UI still renders
-      setFeed(FALLBACK_FEED);
-      setLastUpdated(new Date());
+      console.error('[useLiveFeed] Backend feed fetch failed:', msg);
+      setError(`Backend feed offline (${msg})`);
+      setFeed(null);
     } finally {
       setLoading(false);
     }

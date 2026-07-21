@@ -5,10 +5,12 @@ interface ValidatorDemoProps {
   setCurrentTab: (tab: string) => void;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 export const ValidatorDemo: React.FC<ValidatorDemoProps> = ({ setCurrentTab }) => {
   const { walletAddress, ticketTokenId, isCheckedIn, setCheckedIn } = useWeb3();
 
-  const [scannedToken, setScannedToken] = useState<string>('MC0xWDU1ZGM5O...==');
+  const [scannedToken, setScannedToken] = useState<string>('MC0xWDU1ZGM9O...==');
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [gateStatus, setGateStatus] = useState<'IDLE' | 'SCANNING' | 'AUTHENTICATED' | 'FAILED'>(
     isCheckedIn ? 'AUTHENTICATED' : 'IDLE'
@@ -16,42 +18,62 @@ export const ValidatorDemo: React.FC<ValidatorDemoProps> = ({ setCurrentTab }) =
   
   const [consoleLogs, setConsoleLogs] = useState<Array<{ time: string; msg: string; type: 'info' | 'success' | 'warn' }>>([
     { time: new Date().toLocaleTimeString(), msg: '🎟️ InjPass Stadium Gate Validator Agent Operational', type: 'info' },
-    { time: new Date().toLocaleTimeString(), msg: '🔗 Connected to Injective MCP Server Bridge (inEVM Testnet)', type: 'info' },
+    { time: new Date().toLocaleTimeString(), msg: '🔗 Connected to Injective EVM Testnet Bridge', type: 'info' },
     { time: new Date().toLocaleTimeString(), msg: '🔍 Turnstile Sensor #04 scanning for incoming 15s dynamic proofs...', type: 'info' }
   ]);
 
   const runSimulatedScan = async () => {
     setIsScanning(true);
     setGateStatus('SCANNING');
+    const activeTokenId = ticketTokenId || '1';
 
     const newLogs = [
-      { time: new Date().toLocaleTimeString(), msg: `📱 Scanned dynamic phone proof token: ${scannedToken}`, type: 'info' as const },
-      { time: new Date().toLocaleTimeString(), msg: `⚡ Agent verifying 15s time-window HMAC signature with x402 Server...`, type: 'info' as const },
+      { time: new Date().toLocaleTimeString(), msg: `📱 Turnstile scanned live proof token for Ticket #${activeTokenId}`, type: 'info' as const },
+      { time: new Date().toLocaleTimeString(), msg: `⚡ Verifying x402 15s HMAC signature & dispatching on-chain validateGateEntry(${activeTokenId})...`, type: 'info' as const },
     ];
 
     setConsoleLogs((prev) => [...newLogs, ...prev]);
 
-    await new Promise((res) => setTimeout(res, 1200));
+    try {
+      const res = await fetch(`${API_URL}/api/validator/scan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenId: activeTokenId }),
+      });
 
-    const authLog = {
-      time: new Date().toLocaleTimeString(),
-      msg: `🔗 Executing on-chain validateGateEntry(${ticketTokenId || '1'}) via Injective MCP tool (trade_open)`,
-      type: 'info' as const,
-    };
-    setConsoleLogs((prev) => [authLog, ...prev]);
+      const data = await res.json();
 
-    await new Promise((res) => setTimeout(res, 1000));
+      if (data.success && data.txHash) {
+        const authLog = {
+          time: new Date().toLocaleTimeString(),
+          msg: `🔗 On-chain Tx Confirmed: contract.validateGateEntry(${activeTokenId}) | Tx: ${data.txHash}`,
+          type: 'info' as const,
+        };
+        const successLog = {
+          time: new Date().toLocaleTimeString(),
+          msg: `✅ Ticket #${activeTokenId} authenticated & checked in on-chain! Gate UNLOCKED 🟢`,
+          type: 'success' as const,
+        };
 
-    const successLog = {
-      time: new Date().toLocaleTimeString(),
-      msg: `✅ Ticket authenticated via Injective Layer! Gate unlocked 🟢 (Token #${ticketTokenId || '1'})`,
-      type: 'success' as const,
-    };
-
-    setConsoleLogs((prev) => [successLog, ...prev]);
-    setGateStatus('AUTHENTICATED');
-    setIsScanning(false);
-    setCheckedIn();
+        setConsoleLogs((prev) => [successLog, authLog, ...prev]);
+        setGateStatus('AUTHENTICATED');
+        setCheckedIn();
+      } else {
+        throw new Error(data.error || data.details || 'Validation execution failed');
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Execution notice';
+      const errorLog = {
+        time: new Date().toLocaleTimeString(),
+        msg: `⚠️ On-chain gate validation notice: ${msg}`,
+        type: 'warn' as const,
+      };
+      setConsoleLogs((prev) => [errorLog, ...prev]);
+      setGateStatus('FAILED');
+    } finally {
+      setIsScanning(false);
+    }
+  };    setCheckedIn();
   };
 
   const resetGate = () => {

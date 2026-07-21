@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { useWeb3 } from '../context/Web3Context';
 import { useLiveFeed } from '../hooks/useLiveFeed';
 import { useTicketProof } from '../hooks/useTicketProof';
+import { EventControlPanel } from '../components/EventControlPanel';
 
 interface DashboardProps {
   activePane?: 'ticket' | 'arena';
@@ -585,6 +586,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ activePane = 'ticket', set
               </button>
             </div>
           </div>
+
+          {/* Event Control & Deployment Panel */}
+          <EventControlPanel compact />
         </div>
       </div>
     </div>

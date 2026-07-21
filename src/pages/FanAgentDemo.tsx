@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useWeb3 } from '../context/Web3Context';
 import { useLiveFeed } from '../hooks/useLiveFeed';
+import { EventControlPanel } from '../components/EventControlPanel';
 
 interface FanAgentDemoProps {
   setCurrentTab: (tab: string) => void;
@@ -305,6 +306,10 @@ export const FanAgentDemo: React.FC<FanAgentDemoProps> = ({ setCurrentTab }) => 
           </div>
         </div>
 
+        {/* FULL WIDTH: Interactive Event Creation & Control Panel */}
+        <div style={{ marginTop: '2.5rem' }}>
+          <EventControlPanel />
+        </div>
       </div>
     </div>
   );
