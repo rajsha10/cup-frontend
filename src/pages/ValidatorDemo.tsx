@@ -73,7 +73,6 @@ export const ValidatorDemo: React.FC<ValidatorDemoProps> = ({ setCurrentTab }) =
     } finally {
       setIsScanning(false);
     }
-  };    setCheckedIn();
   };
 
   const resetGate = () => {

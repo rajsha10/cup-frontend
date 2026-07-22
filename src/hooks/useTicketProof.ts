@@ -78,16 +78,9 @@ export function useTicketProof(tokenId: string | null, ownerAddress: string | nu
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      console.warn('[useTicketProof] Backend offline, using mock proof:', msg);
-      // Generate mock proof so QR renders even without backend
-      setProof({
-        tokenId: tokenId || '1',
-        proofToken: `mock-proof-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        expiresIn: ROTATION_SECONDS,
-        matchContext: 'Argentina 2 - 1 France',
-      });
-      setSecondsRemaining(ROTATION_SECONDS);
-      setError(null);
+      console.error('[useTicketProof] Backend proof fetch failed:', msg);
+      setError(`Proof fetch failed: ${msg}`);
+      setProof(null);
     } finally {
       setLoading(false);
     }

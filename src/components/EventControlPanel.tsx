@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLiveFeed, RecentEvent } from '../hooks/useLiveFeed';
+import { useLiveFeed, type RecentEvent } from '../hooks/useLiveFeed';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
