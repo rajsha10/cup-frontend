@@ -175,7 +175,7 @@ export const Home: React.FC<HomeProps> = ({ setCurrentTab }) => {
               </Button>
             )}
             {!isConnected && (
-              <Button variant="outline" size="lg" onClick={() => setCurrentTab('arena')}>
+              <Button variant="outline" size="lg" onClick={() => setCurrentTab('ticket')}>
                 Watch Live Feed
               </Button>
             )}

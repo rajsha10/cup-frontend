@@ -3,7 +3,6 @@ import QRCode from 'qrcode';
 import { useWeb3 } from '../context/Web3Context';
 import { useLiveFeed } from '../hooks/useLiveFeed';
 import { useTicketProof } from '../hooks/useTicketProof';
-import { EventControlPanel } from '../components/EventControlPanel';
 
 interface DashboardProps {
   activePane?: 'ticket' | 'arena';
@@ -240,7 +239,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ activePane = 'ticket', set
         {/* ════════════════════════════════════
             LEFT PANE — Digital Pass / NFT Ticket
         ════════════════════════════════════ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className={`dashboard-left-pane ${activeTab === 'ticket' ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* Not connected */}
           {!isConnected && (
@@ -456,7 +455,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ activePane = 'ticket', set
         {/* ════════════════════════════════════
             RIGHT PANE — Live Arena Feed
         ════════════════════════════════════ */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className={`dashboard-right-pane ${activeTab === 'arena' ? 'active' : ''}`} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* Live Scorecard */}
           <div className="glass-panel" style={{ padding: '1.75rem' }}>
@@ -553,42 +552,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ activePane = 'ticket', set
             </div>
           </div>
 
-          {/* Simulate Victory (demo) */}
-          <div className="glass-panel" style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.95rem', marginBottom: '0.75rem', color: 'var(--color-text-primary)' }}>
-              ⚙️ Demo Controls
-            </h3>
-            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-family-body)', marginBottom: '1rem' }}>
-              Simulate contract events for demonstration purposes.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setVictoryEdition()}
-                style={{
-                  padding: '0.5rem 1rem', borderRadius: 'var(--radius-pill)', cursor: 'pointer',
-                  background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
-                  color: '#D97706', fontWeight: 700, fontSize: '0.8rem',
-                  fontFamily: 'var(--font-family-body)', transition: 'all var(--transition-fast)',
-                }}
-              >
-                🏆 Simulate Victory Upgrade
-              </button>
-              <button
-                onClick={() => setCheckedIn()}
-                style={{
-                  padding: '0.5rem 1rem', borderRadius: 'var(--radius-pill)', cursor: 'pointer',
-                  background: 'var(--color-success-bg)', border: '1px solid rgba(16,185,129,0.3)',
-                  color: 'var(--color-success)', fontWeight: 700, fontSize: '0.8rem',
-                  fontFamily: 'var(--font-family-body)', transition: 'all var(--transition-fast)',
-                }}
-              >
-                ✅ Simulate Check-In
-              </button>
-            </div>
-          </div>
-
-          {/* Event Control & Deployment Panel */}
-          <EventControlPanel compact />
         </div>
       </div>
     </div>

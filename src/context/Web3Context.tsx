@@ -57,9 +57,9 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
   const [injBalance, setInjBalance] = useState<number>(0);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
-  // Ticket NFT state (pre-loaded demo ticket #1)
-  const [ticketTokenId, setTicketTokenId] = useState<string | null>('1');
-  const [ticketSeat, setTicketSeat] = useState<number | null>(104);
+  // Ticket NFT state (loaded dynamically from database)
+  const [ticketTokenId, setTicketTokenId] = useState<string | null>(null);
+  const [ticketSeat, setTicketSeat] = useState<number | null>(null);
   const [isCheckedIn, setIsCheckedInState] = useState<boolean>(false);
   const [isVictoryEdition, setIsVictoryEditionState] = useState<boolean>(false);
   const ticketEventId = 'WC2026-FIN';
@@ -85,8 +85,28 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
           setWalletAddress(userAddress);
           setUsdcBalance(500.0);
           setInjBalance(12.45);
-          setTicketTokenId('1');
-          setTicketSeat(104);
+
+          // Fetch ticket from Supabase via backend API
+          try {
+            const res = await fetch(`http://localhost:3000/api/tickets?ownerAddress=${userAddress}`);
+            const data = await res.json();
+            if (data.success && data.ticket) {
+              setTicketTokenId(data.ticket.tokenId);
+              setTicketSeat(data.ticket.seat);
+              setIsCheckedInState(data.ticket.isCheckedIn);
+              setIsVictoryEditionState(data.ticket.isVictoryEdition);
+            } else {
+              setTicketTokenId(null);
+              setTicketSeat(null);
+              setIsCheckedInState(false);
+              setIsVictoryEditionState(false);
+            }
+          } catch (dbErr) {
+            console.warn('DB ticket fetch error, defaulting:', dbErr);
+            setTicketTokenId(null);
+            setTicketSeat(null);
+          }
+
           setIsConnecting(false);
           return;
         }
@@ -103,8 +123,27 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     setWalletAddress(mockAddress);
     setUsdcBalance(500.0);
     setInjBalance(12.45);
-    setTicketTokenId('1');
-    setTicketSeat(104);
+
+    // Fetch ticket for mock address (will be null initially)
+    try {
+      const res = await fetch(`http://localhost:3000/api/tickets?ownerAddress=${mockAddress}`);
+      const data = await res.json();
+      if (data.success && data.ticket) {
+        setTicketTokenId(data.ticket.tokenId);
+        setTicketSeat(data.ticket.seat);
+        setIsCheckedInState(data.ticket.isCheckedIn);
+        setIsVictoryEditionState(data.ticket.isVictoryEdition);
+      } else {
+        setTicketTokenId(null);
+        setTicketSeat(null);
+        setIsCheckedInState(false);
+        setIsVictoryEditionState(false);
+      }
+    } catch {
+      setTicketTokenId(null);
+      setTicketSeat(null);
+    }
+
     setIsConnecting(false);
   }, []);
 
@@ -122,10 +161,32 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
     setTicketTokenId(tokenId);
     setTicketSeat(seat);
     setUsdcBalance((prev) => Math.max(0, prev - 50));
+
+    // Save ticket purchase to DB
+    if (walletAddress) {
+      fetch('http://localhost:3000/api/tickets/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenId, seat, ownerAddress: walletAddress })
+      }).catch(err => console.error("Failed to sync ticket purchase to DB:", err));
+    }
+  }, [walletAddress]);
+
+  const setCheckedIn = useCallback(() => {
+    setIsCheckedInState(true);
+    // Synced upon scan on the backend `/api/validator/scan`
   }, []);
 
-  const setCheckedIn = useCallback(() => setIsCheckedInState(true), []);
-  const setVictoryEdition = useCallback(() => setIsVictoryEditionState(true), []);
+  const setVictoryEdition = useCallback(() => {
+    setIsVictoryEditionState(true);
+    if (ticketTokenId) {
+      fetch('http://localhost:3000/api/tickets/sync-victory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenId: ticketTokenId })
+      }).catch(err => console.error("Failed to sync victory ticket state to DB:", err));
+    }
+  }, [ticketTokenId]);
 
   // Handle wallet account switching automatically
   useEffect(() => {

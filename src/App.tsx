@@ -4,10 +4,9 @@ import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
 import { ValidatorDemo } from './pages/ValidatorDemo';
-import { FanAgentDemo } from './pages/FanAgentDemo';
 import { Contact } from './pages/Contact';
 
-type Tab = 'home' | 'ticket' | 'validator' | 'agent' | 'arena' | 'admin';
+type Tab = 'home' | 'ticket' | 'validator' | 'admin';
 
 function AppContent() {
   const [currentTab, setCurrentTab] = useState<Tab>('home');
@@ -24,10 +23,6 @@ function AppContent() {
         return <Dashboard activePane="ticket" setCurrentTab={navigate} />;
       case 'validator':
         return <ValidatorDemo setCurrentTab={navigate} />;
-      case 'agent':
-        return <FanAgentDemo setCurrentTab={navigate} />;
-      case 'arena':
-        return <Dashboard activePane="arena" setCurrentTab={navigate} />;
       case 'admin':
         return <Contact />;
       default:
@@ -82,7 +77,6 @@ function AppContent() {
             {[
               { label: 'How It Works', action: () => setCurrentTab('home' as Tab) },
               { label: 'Turnstile Demo', action: () => setCurrentTab('validator' as Tab) },
-              { label: 'AI Agent Demo', action: () => setCurrentTab('agent' as Tab) },
               { label: 'Admin Panel', action: () => setCurrentTab('admin' as Tab) },
             ].map((item) => (
               <span

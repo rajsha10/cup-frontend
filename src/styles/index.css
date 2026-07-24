@@ -819,3 +819,13 @@ button, input, select, textarea {
   border: 1px solid rgba(245, 158, 11, 0.25);
   animation: pulse-glow 2s infinite alternate ease-in-out;
 }
+
+/* ============================================================
+   INJPASS: DASHBOARD PANE RESPONSIVENESS (MOBILE TAB TOGGLE)
+   ============================================================ */
+@media (max-width: 1023px) {
+  .dashboard-left-pane:not(.active),
+  .dashboard-right-pane:not(.active) {
+    display: none !important;
+  }
+}

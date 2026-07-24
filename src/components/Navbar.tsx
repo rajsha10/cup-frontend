@@ -11,8 +11,6 @@ const TABS = [
   { id: 'home',      label: 'Home',           icon: '🏟' },
   { id: 'ticket',    label: 'My Ticket',      icon: '🎫' },
   { id: 'validator', label: 'Turnstile Gate', icon: '🚧' },
-  { id: 'agent',     label: 'AI Fan Agent',   icon: '🤖' },
-  { id: 'arena',     label: 'Arena Feed',     icon: '📡' },
   { id: 'admin',     label: 'Admin',          icon: '⚙️' },
 ];
 
